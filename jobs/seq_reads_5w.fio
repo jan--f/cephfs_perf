@@ -1,0 +1,23 @@
+[global]
+include global_options
+rw=read
+
+[5r_1m]
+filesize=1m
+numjobs=5
+
+[5r_256m]
+filesize=256m
+numjobs=5
+
+[5r_1g]
+filesize=1g
+numjobs=5
+
+[5r_5g]
+filesize=5g
+numjobs=5
+
+# [5r_50g]
+# filesize=50g
+# numjobs=5
