@@ -1,0 +1,3 @@
+[submodule "smallfile"]
+	path = smallfile
+	url = https://github.com/bengland2/smallfile.git
