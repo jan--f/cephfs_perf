@@ -1,35 +1,60 @@
 #!/bin/bash
 
+while [[ $# -gt 0 ]]; do
+key="$1"
+
+case $key in
+    -d|--directory)
+    DIR="$2"
+    shift # past argument
+    ;;
+    -h|--hostfile)
+    HOSTFILE="$2"
+    shift # past argument
+    ;;
+    *)
+            # unknown option
+    ;;
+esac
+shift # past argument or value
+done
+
+if [ -z $DIR ]; then
+DIR=$(pwd)
+fi
+
+OUTDIR=$DIR/files
+LOGDIR=$DIR/logs
+
+echo "using $OUTDIR as output directory"
+
 if [ ! -d files ]; then
-    echo 'creating directory "files"'
-    mkdir files
+    echo 'creating directory ' $OUTDIR
+    mkdir $DIR/files
 else
-    echo "clean up files dir"
-    rm files/*
+    echo "clean up files"
+    rm $OUTDIR/*
 fi
 
 if [ ! -d logs ]; then
-    echo 'creating directory "logs"'
+    echo 'creating directory ' $LOGDIR
     mkdir logs
 fi
 
-if [ $# -eq 0 ]; then
-    echo 'using all jobfiles under dir "jobs"'
-    if [ ! -d jobs ]; then
-        echo 'dir "jobs does not exist...giving up"'
-        exit 1
-    fi
-    DIR=./jobs
-else
-    echo 'looking for jobs under ' $1
-    DIR=$1
-fi
-
-for job in $(find $DIR -name \*.fio); do
+for job in $(find jobs -name \*.fio); do
     jobname=$(basename $job)
     echo "${jobname%.*}"
-    echo "fio $job > logs/$jobname.log"
+    LOGFILE=$LOGDIR/$jobname.log
 
+    if [ -z $HOSTFILE ]; then
+        cmd="fio --directory=$OUTDIR $job > $LOGFILE"
+    else
+        cmd="fio --client=$HOSTFILE --directory=$OUTDIR $job > $LOGFILE"
+    fi
+
+    echo $cmd
+    cmd$
+    echo
     echo "removing work files..."
-    rm files/*
+    rm $OUTDIR/*
 done
