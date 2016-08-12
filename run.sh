@@ -53,7 +53,7 @@ for job in $(find jobs -name \*.fio); do
     fi
 
     echo $cmd
-    cmd$
+    eval cmd$
     echo
     echo "removing work files..."
     rm $OUTDIR/*
