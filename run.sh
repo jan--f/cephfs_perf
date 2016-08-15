@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# parse command line
 while [[ $# -gt 0 ]]; do
 key="$1"
 
@@ -19,15 +20,22 @@ esac
 shift # past argument or value
 done
 
+# set default directory if no option was passed on cli
 if [ -z $DIR ]; then
 DIR=$(pwd)
 fi
 
-OUTDIR=$DIR/files
+export OUTDIR=$DIR/files
 LOGDIR=$DIR/logs
+
+# create fio job files from template
+for jobtemp in $(find jobs -name \*.fio.in); do
+    sed "s~<dir>~$OUTDIR~" $jobtemp > ${jobtemp%.*}
+done
 
 echo "using $OUTDIR as output directory"
 
+# create necessary dirs
 if [ ! -d files ]; then
     echo 'creating directory ' $OUTDIR
     mkdir $DIR/files
@@ -47,13 +55,13 @@ for job in $(find jobs -name \*.fio); do
     LOGFILE=$LOGDIR/$jobname.log
 
     if [ -z $HOSTFILE ]; then
-        cmd="fio --directory=$OUTDIR $job > $LOGFILE"
+        cmd="fio $job > $LOGFILE"
     else
-        cmd="fio --client=$HOSTFILE --directory=$OUTDIR $job > $LOGFILE"
+        cmd="fio --client=$HOSTFILE $job > $LOGFILE"
     fi
 
     echo $cmd
-    eval cmd$
+    #eval $cmd
     echo
     echo "removing work files..."
     rm $OUTDIR/*

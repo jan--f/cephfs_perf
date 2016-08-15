@@ -1,5 +1,6 @@
 [global]
-include global_options
+directory=<dir>
+wait_for_previous
 filesize=100m
 filename_format=random.$filenum
 

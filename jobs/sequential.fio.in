@@ -1,11 +1,8 @@
 [global]
-include global_options
-# try 1 mio files
-# nrfiles=1000000
-nrfiles=10000
-openfiles=1000
-filesize=1k:1m
-filename_format=many.$filenum
+directory=<dir>
+wait_for_previous
+filesize=100m
+filename_format=seqential.$filenum
 
 [1w_4k_w]
 rw=write
