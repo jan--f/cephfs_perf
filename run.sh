@@ -1,17 +1,26 @@
 #!/bin/bash
 
+run_cmd(){
+    echo $1
+}
+
+
 # parse command line
 while [[ $# -gt 0 ]]; do
 key="$1"
 
 case $key in
     -d|--directory)
-    DIR="$2"
+    OUTDIR="$2"
     shift # past argument
     ;;
     -h|--hostfile)
     HOSTFILE="$2"
     shift # past argument
+    ;;
+    -l|--logdir)
+    LOGDIR="$2"
+    shift
     ;;
     *)
             # unknown option
@@ -21,33 +30,19 @@ shift # past argument or value
 done
 
 # set default directory if no option was passed on cli
-if [ -z $DIR ]; then
-DIR=$(pwd)
+if [ -z $OUTDIR ]; then
+    OUTDIR=$(pwd)/files
+    echo "using $OUTDIR as output directory"
 fi
 
-export OUTDIR=$DIR/files
-LOGDIR=$DIR/logs
+if [ -z $LOGDIR ]; then
+    LOGDIR=$(pwd)/logs
+fi
 
 # create fio job files from template
 for jobtemp in $(find jobs -name \*.fio.in); do
     sed "s~<dir>~$OUTDIR~" $jobtemp > ${jobtemp%.*}
 done
-
-echo "using $OUTDIR as output directory"
-
-# create necessary dirs
-if [ ! -d files ]; then
-    echo 'creating directory ' $OUTDIR
-    mkdir $DIR/files
-else
-    echo "clean up files"
-    rm $OUTDIR/*
-fi
-
-if [ ! -d logs ]; then
-    echo 'creating directory ' $LOGDIR
-    mkdir logs
-fi
 
 for job in $(find jobs -name \*.fio); do
     jobname=$(basename $job)
@@ -60,9 +55,9 @@ for job in $(find jobs -name \*.fio); do
         cmd="fio --client=$HOSTFILE $job > $LOGFILE"
     fi
 
-    echo $cmd
-    #eval $cmd
+    run_cmd "$cmd"
     echo
     echo "removing work files..."
-    rm $OUTDIR/*
+    rm_cmd="rm $OUTDIR/*"
+    run_cmd "$rm_cmd"
 done
